@@ -1,9 +1,3 @@
-// check username & password in post(login) request, estaria disponibles en req.body
-// if both exist => create a new JWT, q se envia al front para q pueda hacer el get request al "dashboard" y obtener el secret number ( only the request with JWT can access the dashboard )
-// if not => send back to front con respuesta 'please send email & pass'
-
-// si se logea o registra, solo entonces puede hacer el get para obtener el secret num, sino, se envia al front el mensaje de q necesita logearse o registrarse
-
 // la ruta dashboard va a estar restringida solo para los autenticados, q son los requests q tengan presente el JWT
 const jwt = require('jsonwebtoken');
 const CustomAPIError = require('../errors/custom-error');
@@ -32,29 +26,15 @@ const login = async (req, res) => {
 };
 
 const dashboard = async (req, res) => {
-   console.log(req.headers); // authorization: 'Bearer eyJhbGc...
-   const authHeader = req.headers.authorization;
-
-   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new CustomAPIError('No token provided', 401);
-   }
-
-   const token = authHeader.split(' ')[1];
-
-   //decodificando token
-   try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log(decoded);
-
-      const luckyNumber = Math.floor(Math.random() * 100);
-
-      res.status(200).json({
-         msg: `Hello ${decoded.username}`,
-         secret: `Here is your authorized data, your lucky number is ${luckyNumber}`,
-      });
-   } catch (error) {
-      throw new CustomAPIError('Not authorized to access this route', 401);
-   }
+   console.log(req.user);
+   const luckyNumber = Math.floor(Math.random() * 100);
+   // 📌
+   res.status(200).json({
+      msg: `Hello ${req.user.username}`,
+      secret: `Here is your authorized data, your lucky number is ${luckyNumber}`,
+   });
 };
 
 module.exports = { login, dashboard };
+
+// 📌 en el middleware auth, q es el middleware q se agarra antes de pasar a dashboard, se crea la prop user en el req y se le pasa { id, username }
