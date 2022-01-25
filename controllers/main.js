@@ -4,7 +4,6 @@ const BadRequest = require('../errors');
 
 const login = async (req, res) => {
    const { username, password } = req.body;
-   console.log(username, password);
 
    if (!username || !password) {
       throw new BadRequest('please provide usename & password');
@@ -12,7 +11,7 @@ const login = async (req, res) => {
    }
 
    // JWT RELATED
-   // just demo, normally provided by DB
+   // id solo para la demo, normally provided by DB
    const id = new Date().getTime();
 
    // 🔰
