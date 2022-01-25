@@ -1,13 +1,13 @@
 // la ruta dashboard va a estar restringida solo para los autenticados, q son los requests q tengan presente el JWT
 const jwt = require('jsonwebtoken');
-const CustomAPIError = require('../errors/custom-error');
+const BadRequest = require('../errors');
 
 const login = async (req, res) => {
    const { username, password } = req.body;
    console.log(username, password);
 
    if (!username || !password) {
-      throw new CustomAPIError('please provide usename & password', 400);
+      throw new BadRequest('please provide usename & password');
       // como estoy ocupando 'express-async-errors' => este error se pasa directo a "errorHandlerMiddleware"
    }
 
@@ -15,9 +15,7 @@ const login = async (req, res) => {
    // just demo, normally provided by DB
    const id = new Date().getTime();
 
-   // 1er param es el payload ( NO PASAR PASSWORDS ), mantenerlos lo más pequeños posible
-   // 2do el jwt secret, se guarda en el .env, este secreto es con el q se firma el token y x eso es q se mantiene solo en el server en en .env, sino cualquier otro puede empezar a firmar tokens
-   // 3ro opciones, en este caso q expira en 30 dias.
+   // 🔰
    const token = jwt.sign({ id, username }, process.env.JWT_SECRET, {
       expiresIn: '30d',
    });
@@ -38,3 +36,7 @@ const dashboard = async (req, res) => {
 module.exports = { login, dashboard };
 
 // 📌 en el middleware auth, q es el middleware q se agarra antes de pasar a dashboard, se crea la prop user en el req y se le pasa { id, username }
+// 🔰
+// 1er param es el payload ( NO PASAR PASSWORDS ), mantenerlos lo más pequeños posible
+// 2do el jwt secret, se guarda en el .env, este secreto es con el q se firma el token y x eso es q se mantiene solo en el server en en .env, sino cualquier otro puede empezar a firmar tokens
+// 3ro opciones, en este caso q expira en 30 dias.
